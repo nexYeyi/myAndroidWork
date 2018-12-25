@@ -1,0 +1,229 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'im.fir.plugin.gradle'
+apply plugin: 'io.fabric'
+
+// Manifest version information!
+def versionMajor = 1
+def versionMinor = 1
+def versionPatch = 1
+
+def buildTime = new Date().format("yyyy-MM-dd HH:mm", TimeZone.getTimeZone("GMT+8:00"))
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+    defaultConfig {
+        applicationId "com.linroid.viewit"
+        minSdkVersion 16
+        targetSdkVersion 25
+
+        versionCode versionMajor * 100 + versionMinor * 10 + versionPatch
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "BUILD_TIME", "\"${buildTime}\""
+        manifestPlaceholders = [APPLICATION_ID: applicationId, CHANNEL: "linroid"]
+//        ndk {
+//            abiFilters 'x86', 'x86_64', 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+//        }
+//        externalNativeBuild {
+//            cmake {
+//                arguments '-DANDROID_PLATFORM=android-21',
+//                        '-DANDROID_TOOLCHAIN=clang'
+//            }
+//        }
+    }
+    signingConfigs {
+        debug {
+            storeFile file('./linroid_debug.jks')
+            storePassword '12344321'
+            keyAlias 'linroid_debug'
+            keyPassword '12344321'
+        }
+
+        release {
+        }
+    }
+    buildTypes {
+        debug {
+            applicationIdSuffix ".dev"
+            versionNameSuffix '-dev'
+            shrinkResources false
+            minifyEnabled false
+            zipAlignEnabled false
+            signingConfig signingConfigs.debug
+
+            manifestPlaceholders = [APPLICATION_ID: defaultConfig.applicationId + applicationIdSuffix, DEBUG: "true"]
+
+            // rename apk
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    def outputFile = output.outputFile
+                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                        File outputDirectory = new File(outputFile.parent);
+                        def fileName = "ViewIt_v${defaultConfig.versionName}_${buildTime}_${variant.productFlavors[0].name}.apk"
+                        output.outputFile = new File(outputDirectory, fileName)
+                    }
+                }
+            }
+        }
+    }
+
+    productFlavors {
+        linroid {}
+        fir_im {}
+        play {}
+        coolapk {}
+//        xiaomi {}
+//        meizu {}
+//        wandoujia {}
+    }
+
+    productFlavors.all {
+        flavor -> flavor.manifestPlaceholders = [CHANNEL: name]
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    dexOptions {
+        javaMaxHeapSize "2048M"
+    }
+
+    compileOptions.incremental = true
+
+    lintOptions {
+        disable 'InvalidPackage'
+        disable 'MissingTranslation'
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
+//    externalNativeBuild {
+//        cmake {
+//            path "src/main/cpp/CMakeLists.txt"
+//        }
+//    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    })
+    // support
+    compile "com.android.support:appcompat-v7:$support_version"
+    //    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
+    compile "com.android.support:design:$support_version"
+    compile "com.android.support:design:$support_version"
+    testCompile 'junit:junit:4.12'
+    // tools
+    compile 'com.jakewharton.timber:timber:4.4.0'
+    compile "com.github.hotchemi:permissionsdispatcher:${permissionsdispatcher_version}"
+    kapt "com.github.hotchemi:permissionsdispatcher-processor:${permissionsdispatcher_version}"
+    compile 'com.jakewharton:kotterknife:0.1.0-SNAPSHOT'
+    // ioc
+    compile 'com.google.dagger:dagger:2.8'
+    kapt 'com.google.dagger:dagger-compiler:2.8'
+    // data
+//    compile "com.squareup.retrofit2:retrofit:$retrofit_version"
+//    compile "com.squareup.retrofit2:converter-gson:$retrofit_version"
+//    compile "com.squareup.retrofit2:adapter-rxjava:$retrofit_version"
+//    compile 'com.squareup.okhttp3:okhttp:3.5.0'
+//    compile 'com.squareup.okhttp3:logging-interceptor:3.5.0'
+//    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.github.salomonbrys.kotson:kotson:2.5.0'
+    // rxjava
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'io.reactivex:rxjava:1.1.6'
+    compile 'com.trello:rxlifecycle:1.0'
+    compile 'com.trello:rxlifecycle-android:1.0'
+    compile 'com.trello:rxlifecycle-components:1.0'
+//    compile 'com.trello:rxlifecycle-navi:1.0'
+    compile 'com.trello:rxlifecycle-kotlin:1.0'
+    //rxbinding
+    compile 'com.jakewharton.rxbinding:rxbinding-kotlin:1.0.0'
+//    compile 'com.jakewharton.rxbinding:rxbinding-support-v4-kotlin:1.0.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7-kotlin:1.0.0'
+//    compile 'com.jakewharton.rxbinding:rxbinding-recyclerview-v7-kotlin:1.0.0'
+//    compile 'com.jakewharton.rxbinding:rxbinding-design-kotlin:1.0.0'
+    // kotlin
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile 'io.reactivex:rxkotlin:0.60.0'
+    // view components
+    compile('me.drakeet.multitype:multitype:2.3.0', {
+        exclude group: 'com.android.support'
+    })
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.github.piasy:BigImageViewer:1.2.5'
+    // load with glide
+    compile 'com.github.piasy:GlideImageLoader:1.2.5'
+    // progress pie indicator
+//    compile 'com.github.piasy:ProgressPieIndicator:1.2.5'
+    compile 'me.drakeet.support:about:1.0.2'
+    // https://github.com/Kotlin/anko
+    //    compile "org.jetbrains.anko:anko-sdk15:$anko_version" // sdk19, sdk21, sdk23 are also available
+    //    compile "org.jetbrains.anko:anko-support-v4:$anko_version" // In case you need support-v4 bindings
+    //    compile "org.jetbrains.anko:anko-appcompat-v7:$anko_version" // For appcompat-v7 bindings
+
+    compile('com.github.twiceyuan:RxLeanCloud:1.1.4', {
+        exclude group: 'cn.leancloud.android', module: 'avoscloud-push'
+    })
+    compile ('cn.leancloud.android:avoscloud-statistics:v3.+')
+    compile ('cn.leancloud.android:avoscloud-feedback:v3.+@aar')
+
+    // paperparcel
+    compile 'nz.bradcampbell:paperparcel:2.0.0-beta2'
+    compile 'nz.bradcampbell:paperparcel-kotlin:2.0.0-beta2' // Optional
+    kapt 'nz.bradcampbell:paperparcel-compiler:2.0.0-beta2'
+
+    compile 'com.github.satyan:sugar:1.5'
+
+//    compile 'com.facebook.stetho:stetho:1.4.2'
+
+    // file picker
+    compile 'com.nononsenseapps:filepicker:4.0.0'
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {
+        transitive = true;
+    }
+}
+
+File signPropFile = file('signing.properties');
+if (signPropFile.exists()) {
+    def Properties signProps = new Properties()
+    signProps.load(new FileInputStream(signPropFile))
+
+    if (signProps.containsKey('STORE_FILE') && signProps.containsKey('STORE_PASSWORD') &&
+            signProps.containsKey('KEY_ALIAS') && signProps.containsKey('KEY_PASSWORD')) {
+        android.signingConfigs.release.storeFile = file(signProps['STORE_FILE'])
+        android.signingConfigs.release.storePassword = signProps['STORE_PASSWORD']
+        android.signingConfigs.release.keyAlias = signProps['KEY_ALIAS']
+        android.signingConfigs.release.keyPassword = signProps['KEY_PASSWORD']
+    } else {
+        android.buildTypes.release.signingConfig = null
+    }
+} else {
+    android.buildTypes.release.signingConfig = null
+}
+
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def firToken = properties.getProperty('fir_token')
+
+fir {
+    //必填 上传 fir.im apk 字段，否则无法上传 APP 到 fir.im
+    apiToken firToken
+}

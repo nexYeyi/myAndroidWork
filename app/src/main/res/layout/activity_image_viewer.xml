@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:orientation="vertical">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="81dp"
+        android:background="@drawable/bg_viewer_toolbar_mask"/>
+
+    <com.linroid.viewit.widget.InsetsFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            android:theme="@style/Widget.AppBarOverlay"
+            app:popupTheme="@style/Widget.Popup"/>
+
+        <LinearLayout
+            android:id="@+id/actions_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:background="@drawable/bg_viewer_options_mask"
+            android:minHeight="?actionBarSize"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatImageButton
+                android:id="@+id/action_share"
+                style="@style/ViewerOptionsStyle"
+                android:src="@drawable/ic_share"/>
+
+            <android.support.v7.widget.AppCompatImageButton
+                android:id="@+id/action_save"
+                style="@style/ViewerOptionsStyle"
+                android:src="@drawable/ic_save"/>
+
+            <android.support.v7.widget.AppCompatImageButton
+                android:id="@+id/action_delete"
+                style="@style/ViewerOptionsStyle"
+                android:src="@drawable/ic_delete"/>
+        </LinearLayout>
+    </com.linroid.viewit.widget.InsetsFrameLayout>
+
+</FrameLayout>
